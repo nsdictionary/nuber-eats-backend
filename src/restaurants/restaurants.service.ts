@@ -5,6 +5,7 @@ import { Restaurant } from './entities/restaurant.entitiy';
 
 @Injectable()
 export class RestaurantService {
+  // this.restaurants is Repository of restaurant entitiy
   constructor(
     @InjectRepository(Restaurant)
     private readonly restaurants: Repository<Restaurant>,
