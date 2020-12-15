@@ -50,13 +50,10 @@ export class UsersService {
         return { ok: false, error: "Wrong password" };
       }
 
-      const token = jwt.sign(
-        { id: user.id },
-        this.config.get("SECRET_KEY"),
-        {}
-      );
-
-      return { ok: true, token: "TBD" };
+      return {
+        ok: true,
+        token: jwt.sign({ id: user.id }, this.config.get("SECRET_KEY"), {}),
+      };
     } catch (error) {
       return { ok: false, error };
     }
