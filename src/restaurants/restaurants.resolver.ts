@@ -1,5 +1,4 @@
-import { Args, Mutation, Query } from '@nestjs/graphql';
-import { Resolver } from '@nestjs/graphql';
+import { Resolver, Args, Mutation, Query } from '@nestjs/graphql';
 import { UpdateResult } from 'typeorm';
 import { CreateRestaurantDto } from './dtos/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dtos/update-restaurant.dto';
