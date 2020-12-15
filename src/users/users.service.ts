@@ -15,5 +15,18 @@ export class UsersService {
     return this.users.find();
   }
 
-  // createUser(data: CreateAccountInput) {}
+  async createAccount({ email, password, role }: CreateAccountInput) {
+    try {
+      const exists = await this.users.findOne({ email });
+      if (exists) {
+        // make error
+        return;
+      }
+
+      await this.users.save(this.users.create({ email, password, role }));
+      return true;
+    } catch (e) {
+      return;
+    }
+  }
 }
