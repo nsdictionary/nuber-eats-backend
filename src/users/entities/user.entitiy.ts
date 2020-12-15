@@ -1,14 +1,14 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException } from "@nestjs/common";
 import {
   Field,
   InputType,
   ObjectType,
   registerEnumType,
-} from '@nestjs/graphql';
-import * as bcrypt from 'bcrypt';
-import { IsEmail, IsEnum } from 'class-validator';
-import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, Column, Entity } from 'typeorm';
+} from "@nestjs/graphql";
+import * as bcrypt from "bcrypt";
+import { IsEmail, IsEnum } from "class-validator";
+import { CoreEntity } from "src/common/entities/core.entity";
+import { BeforeInsert, Column, Entity } from "typeorm";
 
 enum UserRole {
   Client,
@@ -16,7 +16,7 @@ enum UserRole {
   Delivery,
 }
 
-registerEnumType(UserRole, { name: 'UserRole' });
+registerEnumType(UserRole, { name: "UserRole" });
 
 @InputType({ isAbstract: true })
 @ObjectType()
@@ -32,7 +32,7 @@ export class User extends CoreEntity {
   password: string;
 
   @Field(() => UserRole)
-  @Column({ type: 'enum', enum: UserRole })
+  @Column({ type: "enum", enum: UserRole })
   @IsEnum(UserRole)
   role: UserRole;
 
