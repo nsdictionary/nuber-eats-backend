@@ -40,7 +40,7 @@ import { JwtModule } from "./jwt/jwt.module";
     }),
     UsersModule,
     CommonModule,
-    JwtModule,
+    JwtModule.forRoot(),
   ],
   controllers: [],
   providers: [],
