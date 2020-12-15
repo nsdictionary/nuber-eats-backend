@@ -4,7 +4,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @InputType({ isAbstract: true }) // it's for only dto
 @ObjectType() // for build graphql schema
-@Entity() // for TypeORM
+@Entity() // for TypeORM (sync database)
 export class Restaurant {
   @Field(() => Number)
   @PrimaryGeneratedColumn()
@@ -18,7 +18,7 @@ export class Restaurant {
 
   @Field(() => Boolean, { nullable: true }) // grqphql
   @Column({ default: true }) // TypeORM
-  @IsBoolean() // tdo(class validator)
+  @IsBoolean() // dto(class validator)
   @IsOptional()
   isVegan: boolean;
 
