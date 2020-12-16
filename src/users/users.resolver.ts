@@ -72,14 +72,8 @@ export class UsersResolver {
     @Args("data") data: EditProfileInput
   ): Promise<EditProfileOutput> {
     try {
-      const result: UpdateResult = await this.usersService.editProfile(
-        authUser.id,
-        data
-      );
-      return {
-        ok: result.affected > 0,
-        error: result.affected == 0 ? "update failed" : null,
-      };
+      const user = await this.usersService.editProfile(authUser.id, data);
+      return { ok: true };
     } catch (error) {
       return { ok: false, error };
     }
