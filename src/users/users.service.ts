@@ -1,12 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, UpdateResult } from "typeorm";
+import { DeleteResult, Repository, UpdateResult } from "typeorm";
 import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
 import { User } from "./entities/user.entitiy";
 import { JwtService } from "../jwt/jwt.service";
 import { UserProfileInput } from "./dtos/user-profile.dto";
 import { EditProfileInput } from "./dtos/edit-profile.dto";
+import { tryCatch } from "rxjs/internal-compatibility";
+import { CoreOutput } from "../common/dtos/output.dto";
 
 @Injectable()
 export class UsersService {
@@ -70,5 +72,17 @@ export class UsersService {
       user[k] = data[k];
     }
     return this.users.save(user);
+  }
+
+  async deleteUser(id: number): Promise<CoreOutput> {
+    try {
+      const result: DeleteResult = await this.users.delete({ id });
+      return {
+        ok: result.affected > 0,
+        error: result.affected == 0 ? "Delete failed" : null,
+      };
+    } catch (error) {
+      return { ok: false, error };
+    }
   }
 }

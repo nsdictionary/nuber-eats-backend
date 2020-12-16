@@ -12,6 +12,7 @@ import { AuthUser } from "../auth/auth-user.decorator";
 import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { UpdateResult } from "typeorm";
+import { CoreOutput } from "../common/dtos/output.dto";
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -74,6 +75,16 @@ export class UsersResolver {
     try {
       const user = await this.usersService.editProfile(authUser.id, data);
       return { ok: true };
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => CoreOutput)
+  async deleteUser(@AuthUser() authUser: User): Promise<CoreOutput> {
+    try {
+      return await this.usersService.deleteUser(authUser.id);
     } catch (error) {
       return { ok: false, error };
     }
