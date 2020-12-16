@@ -8,6 +8,7 @@ import { User } from "./entities/user.entitiy";
 import { UsersService } from "./users.service";
 import { UseGuards } from "@nestjs/common";
 import { AuthGuard } from "../auth/auth.guard";
+import { AuthUser } from "../auth/auth-user.decorator";
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -40,11 +41,7 @@ export class UsersResolver {
 
   @Query(() => User)
   @UseGuards(AuthGuard)
-  me(@Context() context) {
-    if (!context.user) {
-      return;
-    } else {
-      return context.user;
-    }
+  me(@AuthUser() authUser: User) {
+    return authUser;
   }
 }
