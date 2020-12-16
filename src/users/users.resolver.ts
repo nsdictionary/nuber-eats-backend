@@ -13,6 +13,7 @@ import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { UpdateResult } from "typeorm";
 import { CoreOutput } from "../common/dtos/output.dto";
+import { VerifyEmailInput, VerifyEmailOutput } from "./dtos/verify-email.dto";
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -87,6 +88,16 @@ export class UsersResolver {
       return await this.usersService.deleteUser(authUser.id);
     } catch (error) {
       return { ok: false, error };
+    }
+  }
+
+  @Mutation(() => VerifyEmailOutput)
+  verifyEmail(@Args("data") { code }: VerifyEmailInput): VerifyEmailOutput {
+    const result = this.usersService.verifyEmail(code);
+    if (result) {
+      return { ok: true };
+    } else {
+      return { ok: false };
     }
   }
 }

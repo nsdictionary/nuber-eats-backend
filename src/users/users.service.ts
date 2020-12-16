@@ -9,12 +9,15 @@ import { UserProfileInput } from "./dtos/user-profile.dto";
 import { EditProfileInput } from "./dtos/edit-profile.dto";
 import { tryCatch } from "rxjs/internal-compatibility";
 import { CoreOutput } from "../common/dtos/output.dto";
+import { Verification } from "./entities/verification.entitiy";
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly users: Repository<User>,
+    @InjectRepository(Verification)
+    private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService
   ) {}
 
@@ -32,7 +35,13 @@ export class UsersService {
       if (exists) {
         return { ok: false, error: "There is a user with that email already" };
       }
-      await this.users.save(this.users.create({ email, password, role }));
+
+      const user: User = await this.users.save(
+        this.users.create({ email, password, role })
+      );
+
+      await this.verifications.save(this.verifications.create({ user }));
+
       return { ok: true };
     } catch (error) {
       return { ok: false, error: "Couldn't create account" };
@@ -44,11 +53,15 @@ export class UsersService {
     password,
   }: LoginInput): Promise<{ ok: boolean; error?: string; token?: string }> {
     try {
-      const user = await this.users.findOne({ email });
+      const user = await this.users.findOne(
+        { email },
+        { select: ["id", "password"] }
+      );
       if (!user) {
         return { ok: false, error: "User not found" };
       }
 
+      console.log(user);
       if (!(await user.checkPassword(password))) {
         return { ok: false, error: "Wrong password" };
       }
@@ -69,8 +82,13 @@ export class UsersService {
   async editProfile(id: number, data: EditProfileInput): Promise<User> {
     const user = await this.users.findOne({ id });
     for (const k in data) {
+      if (k === "email") {
+        user.verified = false;
+        await this.verifications.save(this.verifications.create({ user }));
+      }
       user[k] = data[k];
     }
+
     return this.users.save(user);
   }
 
@@ -83,6 +101,31 @@ export class UsersService {
       };
     } catch (error) {
       return { ok: false, error };
+    }
+  }
+
+  async verifyEmail(code: string): Promise<boolean> {
+    try {
+      const verification = await this.verifications.findOne(
+        { code },
+        {
+          // loadRelationIds: true, // include only user id
+          relations: ["user"], // include user object
+        }
+      );
+      if (verification) {
+        verification.user.verified = true;
+        await this.users.save(verification.user);
+
+        // await this.users.update({ id: verification.user.id }, { verified: true });
+        // await this.verifications.delete({ id: verification.id });
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 }
