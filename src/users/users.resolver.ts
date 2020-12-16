@@ -10,6 +10,8 @@ import { UseGuards } from "@nestjs/common";
 import { AuthGuard } from "../auth/auth.guard";
 import { AuthUser } from "../auth/auth-user.decorator";
 import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
+import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
+import { UpdateResult } from "typeorm";
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -58,6 +60,26 @@ export class UsersResolver {
       } else {
         return { ok: false, error: "User not found" };
       }
+    } catch (error) {
+      return { ok: false, error };
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => EditProfileOutput)
+  async editProfile(
+    @AuthUser() authUser: User,
+    @Args("data") data: EditProfileInput
+  ): Promise<EditProfileOutput> {
+    try {
+      const result: UpdateResult = await this.usersService.editProfile(
+        authUser.id,
+        data
+      );
+      return {
+        ok: result.affected > 0,
+        error: result.affected == 0 ? "update failed" : null,
+      };
     } catch (error) {
       return { ok: false, error };
     }
