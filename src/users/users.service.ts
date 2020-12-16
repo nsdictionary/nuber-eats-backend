@@ -10,6 +10,7 @@ import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { CoreOutput } from "../common/dtos/output.dto";
 import { Verification } from "./entities/verification.entitiy";
 import { VerifyEmailOutput } from "./dtos/verify-email.dto";
+import { MailService } from "../mail/mail.service";
 
 @Injectable()
 export class UsersService {
@@ -18,7 +19,8 @@ export class UsersService {
     private readonly users: Repository<User>,
     @InjectRepository(Verification)
     private readonly verifications: Repository<Verification>,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailService
   ) {}
 
   async createAccount({
@@ -36,7 +38,11 @@ export class UsersService {
         this.users.create({ email, password, role })
       );
 
-      await this.verifications.save(this.verifications.create({ user }));
+      const verification = await this.verifications.save(
+        this.verifications.create({ user })
+      );
+
+      this.mailService.sendVerificationEmail(user.email, verification.code);
 
       return { ok: true };
     } catch (error) {
@@ -90,7 +96,10 @@ export class UsersService {
         if (k === "email") {
           // TODO: delete or update verification if verfication already exist
           user.verified = false;
-          await this.verifications.save(this.verifications.create({ user }));
+          const verification = await this.verifications.save(
+            this.verifications.create({ user })
+          );
+          this.mailService.sendVerificationEmail(data[k], verification.code);
         }
         user[k] = data[k];
       }
