@@ -25,23 +25,15 @@ export class UsersResolver {
   }
 
   @Mutation(() => CreateAccountOutput)
-  async createAccount(
+  createAccount(
     @Args("data") data: CreateAccountInput
   ): Promise<CreateAccountOutput> {
-    try {
-      return this.usersService.createAccount(data);
-    } catch (error) {
-      return { ok: false, error };
-    }
+    return this.usersService.createAccount(data);
   }
 
   @Mutation(() => LoginOutput)
-  async login(@Args("data") data: LoginInput): Promise<LoginOutput> {
-    try {
-      return this.usersService.login(data);
-    } catch (error) {
-      return { ok: false, error };
-    }
+  login(@Args("data") data: LoginInput): Promise<LoginOutput> {
+    return this.usersService.login(data);
   }
 
   @Query(() => User)
@@ -52,52 +44,31 @@ export class UsersResolver {
 
   @UseGuards(AuthGuard)
   @Query(() => UserProfileOutput)
-  async userProfile(
+  userProfile(
     @Args() { userId }: UserProfileInput
   ): Promise<UserProfileOutput> {
-    try {
-      const user = await this.usersService.findById(userId);
-      if (user) {
-        return { ok: true, user };
-      } else {
-        return { ok: false, error: "User not found" };
-      }
-    } catch (error) {
-      return { ok: false, error };
-    }
+    return this.usersService.findById(userId);
   }
 
   @UseGuards(AuthGuard)
   @Mutation(() => EditProfileOutput)
-  async editProfile(
+  editProfile(
     @AuthUser() authUser: User,
     @Args("data") data: EditProfileInput
   ): Promise<EditProfileOutput> {
-    try {
-      const user = await this.usersService.editProfile(authUser.id, data);
-      return { ok: true };
-    } catch (error) {
-      return { ok: false, error };
-    }
+    return this.usersService.editProfile(authUser.id, data);
   }
 
   @UseGuards(AuthGuard)
   @Mutation(() => CoreOutput)
-  async deleteUser(@AuthUser() authUser: User): Promise<CoreOutput> {
-    try {
-      return await this.usersService.deleteUser(authUser.id);
-    } catch (error) {
-      return { ok: false, error };
-    }
+  deleteUser(@AuthUser() authUser: User): Promise<CoreOutput> {
+    return this.usersService.deleteUser(authUser.id);
   }
 
   @Mutation(() => VerifyEmailOutput)
-  verifyEmail(@Args("data") { code }: VerifyEmailInput): VerifyEmailOutput {
-    const result = this.usersService.verifyEmail(code);
-    if (result) {
-      return { ok: true };
-    } else {
-      return { ok: false };
-    }
+  verifyEmail(
+    @Args("data") { code }: VerifyEmailInput
+  ): Promise<VerifyEmailOutput> {
+    return this.usersService.verifyEmail(code);
   }
 }
