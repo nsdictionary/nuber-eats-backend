@@ -1,13 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DeleteResult, Repository, UpdateResult } from "typeorm";
+import { DeleteResult, Repository } from "typeorm";
 import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { User } from "./entities/user.entitiy";
 import { JwtService } from "../jwt/jwt.service";
-import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
+import { UserProfileOutput } from "./dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
-import { tryCatch } from "rxjs/internal-compatibility";
 import { CoreOutput } from "../common/dtos/output.dto";
 import { Verification } from "./entities/verification.entitiy";
 import { VerifyEmailOutput } from "./dtos/verify-email.dto";
@@ -21,10 +20,6 @@ export class UsersService {
     private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService
   ) {}
-
-  getAll(): Promise<User[]> {
-    return this.users.find();
-  }
 
   async createAccount({
     email,

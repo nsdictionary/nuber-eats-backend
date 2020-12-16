@@ -11,18 +11,12 @@ import { AuthGuard } from "../auth/auth.guard";
 import { AuthUser } from "../auth/auth-user.decorator";
 import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
-import { UpdateResult } from "typeorm";
 import { CoreOutput } from "../common/dtos/output.dto";
 import { VerifyEmailInput, VerifyEmailOutput } from "./dtos/verify-email.dto";
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
-
-  @Query(() => [User])
-  users(): Promise<User[]> {
-    return this.usersService.getAll();
-  }
 
   @Mutation(() => CreateAccountOutput)
   createAccount(
@@ -38,7 +32,7 @@ export class UsersResolver {
 
   @Query(() => User)
   @UseGuards(AuthGuard)
-  me(@AuthUser() authUser: User) {
+  me(@AuthUser() authUser: User): User {
     return authUser;
   }
 
