@@ -5,6 +5,7 @@ import { CreateAccountInput } from "./dtos/create-account.dto";
 import { LoginInput } from "./dtos/login.dto";
 import { User } from "./entities/user.entitiy";
 import { JwtService } from "../jwt/jwt.service";
+import { UserProfileInput } from "./dtos/user-profile.dto";
 
 @Injectable()
 export class UsersService {
