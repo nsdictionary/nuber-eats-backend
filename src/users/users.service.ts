@@ -116,9 +116,8 @@ export class UsersService {
       if (verification) {
         verification.user.verified = true;
         await this.users.save(verification.user);
+        await this.verifications.delete({ id: verification.id });
 
-        // await this.users.update({ id: verification.user.id }, { verified: true });
-        // await this.verifications.delete({ id: verification.id });
         return true;
       } else {
         return false;
