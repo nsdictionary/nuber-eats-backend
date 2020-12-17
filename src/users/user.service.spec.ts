@@ -5,11 +5,13 @@ import { User } from "./entities/user.entitiy";
 import { Verification } from "./entities/verification.entitiy";
 import { JwtService } from "../jwt/jwt.service";
 import { MailService } from "../mail/mail.service";
+import { Repository } from "typeorm";
 
 const mockRepository = {
   findOne: jest.fn(),
   save: jest.fn(),
   create: jest.fn(),
+  delete: jest.fn(),
 };
 
 const mockJwtService = {
@@ -21,8 +23,11 @@ const mockMailService = {
   sendVerificationEmail: jest.fn(),
 };
 
+type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+
 describe("UserService", () => {
   let service: UsersService;
+  let usersRepository: MockRepository<User>;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -47,13 +52,33 @@ describe("UserService", () => {
       ],
     }).compile();
     service = module.get<UsersService>(UsersService);
+    usersRepository = module.get(getRepositoryToken(User));
   });
 
   it("should be defined", () => {
     expect(service).toBeDefined();
   });
 
-  it.todo("createAccount");
+  describe("createAccount", () => {
+    it("should fail if user exist", async () => {
+      usersRepository.findOne.mockResolvedValue({
+        id: 1,
+        email: "test@test.com",
+      });
+
+      const result = await service.createAccount({
+        email: "",
+        password: "",
+        role: 0,
+      });
+
+      expect(result).toMatchObject({
+        ok: false,
+        error: "There is a user with that email already",
+      });
+    });
+  });
+
   it.todo("login");
   it.todo("findById");
   it.todo("editProfile");
