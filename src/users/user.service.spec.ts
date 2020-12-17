@@ -15,21 +15,21 @@ const mockRepository = () => ({
   findOneOrFail: jest.fn(),
 });
 
-const mockJwtService = {
+const mockJwtService = () => ({
   sign: jest.fn(() => "signed-token-baby"),
   verify: jest.fn(),
-};
+});
 
-const mockMailService = {
+const mockMailService = () => ({
   sendVerificationEmail: jest.fn(),
-};
+});
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 
 describe("UserService", () => {
   let service: UsersService;
   let usersRepository: MockRepository<User>;
-  let verificationRepository: MockRepository<Verification>;
+  let verificationsRepository: MockRepository<Verification>;
   let mailService: MailService;
   let jwtService: JwtService;
 
@@ -47,11 +47,11 @@ describe("UserService", () => {
         },
         {
           provide: JwtService,
-          useValue: mockJwtService,
+          useValue: mockJwtService(),
         },
         {
           provide: MailService,
-          useValue: mockMailService,
+          useValue: mockMailService(),
         },
       ],
     }).compile();
@@ -59,7 +59,7 @@ describe("UserService", () => {
     mailService = module.get<MailService>(MailService);
     jwtService = module.get<JwtService>(JwtService);
     usersRepository = module.get(getRepositoryToken(User));
-    verificationRepository = module.get(getRepositoryToken(Verification));
+    verificationsRepository = module.get(getRepositoryToken(Verification));
   });
 
   it("should be defined", () => {
@@ -96,8 +96,8 @@ describe("UserService", () => {
       usersRepository.findOne.mockResolvedValue(undefined);
       usersRepository.create.mockReturnValue(createAccountArgs);
       usersRepository.save.mockResolvedValue(createAccountArgs);
-      verificationRepository.create.mockReturnValue(createVerificationArgs);
-      verificationRepository.save.mockResolvedValue(createVerificationArgs);
+      verificationsRepository.create.mockReturnValue(createVerificationArgs);
+      verificationsRepository.save.mockResolvedValue(createVerificationArgs);
 
       const result = await service.createAccount(createAccountArgs);
 
@@ -107,13 +107,13 @@ describe("UserService", () => {
       expect(usersRepository.save).toHaveBeenCalledTimes(1);
       expect(usersRepository.save).toHaveBeenCalledWith(createAccountArgs);
 
-      expect(verificationRepository.create).toHaveBeenCalledTimes(1);
-      expect(verificationRepository.create).toHaveBeenCalledWith({
+      expect(verificationsRepository.create).toHaveBeenCalledTimes(1);
+      expect(verificationsRepository.create).toHaveBeenCalledWith({
         user: createAccountArgs,
       });
 
-      expect(verificationRepository.save).toHaveBeenCalledTimes(1);
-      expect(verificationRepository.save).toHaveBeenCalledWith(
+      expect(verificationsRepository.save).toHaveBeenCalledTimes(1);
+      expect(verificationsRepository.save).toHaveBeenCalledWith(
         createVerificationArgs
       );
 
@@ -200,7 +200,72 @@ describe("UserService", () => {
     });
   });
 
-  it.todo("editProfile");
+  describe("editProfile", () => {
+    it("should change email", async () => {
+      const oldUser = {
+        email: "bs@old.com",
+        verified: true,
+      };
+      const editProfileArgs = {
+        userId: 1,
+        data: { email: "bs@new.com" },
+      };
+      const newVerification = {
+        code: "code",
+      };
+      const newUser = {
+        verified: false,
+        email: editProfileArgs.data.email,
+      };
+
+      usersRepository.findOne.mockResolvedValue(oldUser);
+      verificationsRepository.create.mockReturnValue(newVerification);
+      verificationsRepository.save.mockResolvedValue(newVerification);
+
+      await service.editProfile(editProfileArgs.userId, editProfileArgs.data);
+
+      expect(usersRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(usersRepository.findOne).toHaveBeenCalledWith({
+        id: editProfileArgs.userId,
+      });
+
+      expect(verificationsRepository.create).toHaveBeenCalledWith({
+        user: newUser,
+      });
+      expect(verificationsRepository.save).toHaveBeenCalledWith(
+        newVerification
+      );
+
+      expect(mailService.sendVerificationEmail).toHaveBeenCalledTimes(1);
+      expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
+        newUser.email,
+        newVerification.code
+      );
+    });
+
+    it("should change password", async () => {
+      const editProfileArgs = {
+        userId: 1,
+        data: { password: "new.password" },
+      };
+      usersRepository.findOne.mockResolvedValue({ password: "old" });
+      const result = await service.editProfile(
+        editProfileArgs.userId,
+        editProfileArgs.data
+      );
+      expect(usersRepository.save).toHaveBeenCalledTimes(1);
+      expect(usersRepository.save).toHaveBeenCalledWith(editProfileArgs.data);
+      expect(result).toEqual({ ok: true });
+    });
+
+    it("should fail on exception", async () => {
+      const error = new Error();
+      usersRepository.findOne.mockRejectedValue(error);
+      const result = await service.editProfile(1, { email: "12" });
+      expect(result).toEqual({ ok: false, error });
+    });
+  });
+
   it.todo("deleteUser");
   it.todo("verifyEmail");
 });
