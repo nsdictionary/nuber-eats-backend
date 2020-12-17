@@ -266,6 +266,36 @@ describe("UserService", () => {
     });
   });
 
-  it.todo("deleteUser");
+  describe("deleteUser", () => {
+    const deleteArgs = { id: 1 };
+
+    it("should fail if not exist affected row", async () => {
+      usersRepository.delete.mockResolvedValue({ affected: 0 });
+      const result = await service.deleteUser(deleteArgs.id);
+      expect(usersRepository.delete).toHaveBeenCalledTimes(1);
+      expect(usersRepository.delete).toHaveBeenCalledWith({
+        id: deleteArgs.id,
+      });
+      expect(result).toEqual({ ok: false, error: "Delete failed" });
+    });
+
+    it("should delete user", async () => {
+      usersRepository.delete.mockResolvedValue({ affected: 1 });
+      const result = await service.deleteUser(deleteArgs.id);
+      expect(usersRepository.delete).toHaveBeenCalledTimes(1);
+      expect(usersRepository.delete).toHaveBeenCalledWith({
+        id: deleteArgs.id,
+      });
+      expect(result).toEqual({ ok: true, error: null });
+    });
+
+    it("should fail on exception", async () => {
+      const error = new Error();
+      usersRepository.delete.mockRejectedValue(error);
+      const result = await service.deleteUser(deleteArgs.id);
+      expect(result).toEqual({ ok: false, error });
+    });
+  });
+
   it.todo("verifyEmail");
 });
