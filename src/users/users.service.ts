@@ -8,7 +8,7 @@ import { JwtService } from "../jwt/jwt.service";
 import { UserProfileOutput } from "./dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { CoreOutput } from "../common/dtos/output.dto";
-import { Verification } from "./entities/verification.entitiy";
+import { Verification } from "./entities/verification.entity";
 import { VerifyEmailOutput } from "./dtos/verify-email.dto";
 import { MailService } from "../mail/mail.service";
 
