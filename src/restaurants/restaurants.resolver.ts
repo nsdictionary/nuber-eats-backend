@@ -7,15 +7,14 @@ import {
 } from "./dtos/create-restaurant.dto";
 import { AuthUser } from "../auth/auth-user.decorator";
 import { User } from "../users/entities/user.entity";
-import { UseGuards } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
+import { Role } from "../auth/role.decorator";
 
 @Resolver(() => Restaurant)
 export class RestaurantsResolver {
   constructor(private readonly restaurantService: RestaurantService) {}
 
-  @UseGuards(AuthGuard)
   @Mutation(() => CreateRestaurantOutput)
+  @Role(["Owner"])
   createRestaurant(
     @AuthUser() authUser: User,
     @Args("data") data: CreateRestaurantInput
