@@ -3,10 +3,10 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Restaurant } from "./entities/restaurant.entitiy";
 import { RestaurantsResolver } from "./restaurants.resolver";
 import { RestaurantService } from "./restaurants.service";
-import { Category } from "./entities/category.entity";
+import { CategoryRepository } from "./repositories/category.repository";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Restaurant, Category])], // import repository
+  imports: [TypeOrmModule.forFeature([Restaurant, CategoryRepository])], // import repository
   providers: [RestaurantsResolver, RestaurantService],
 })
 export class RestaurantsModule {}
