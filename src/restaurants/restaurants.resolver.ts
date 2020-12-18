@@ -1,42 +1,25 @@
-import { Resolver, Args, Mutation, Query } from '@nestjs/graphql';
-import { UpdateResult } from 'typeorm';
-import { CreateRestaurantDto } from './dtos/create-restaurant.dto';
-import { UpdateRestaurantDto } from './dtos/update-restaurant.dto';
-import { Restaurant } from './entities/restaurant.entitiy';
-import { RestaurantService } from './restaurants.service';
+import { Args, Mutation, Resolver } from "@nestjs/graphql";
+import { Restaurant } from "./entities/restaurant.entitiy";
+import { RestaurantService } from "./restaurants.service";
+import {
+  CreateRestaurantInput,
+  CreateRestaurantOutput,
+} from "./dtos/create-restaurant.dto";
+import { AuthUser } from "../auth/auth-user.decorator";
+import { User } from "../users/entities/user.entity";
+import { UseGuards } from "@nestjs/common";
+import { AuthGuard } from "../auth/auth.guard";
 
 @Resolver(() => Restaurant)
-export class RestaurantResolver {
+export class RestaurantsResolver {
   constructor(private readonly restaurantService: RestaurantService) {}
 
-  @Query(() => [Restaurant])
-  restaurants(): Promise<Restaurant[]> {
-    return this.restaurantService.getAll();
-  }
-
-  @Mutation(() => Boolean)
+  @UseGuards(AuthGuard)
+  @Mutation(() => CreateRestaurantOutput)
   async createRestaurant(
-    @Args('data') dto: CreateRestaurantDto,
-  ): Promise<boolean> {
-    try {
-      await this.restaurantService.createRestaurant(dto);
-      return true;
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
-  }
-
-  @Mutation(() => Boolean)
-  async updateRestaurant(@Args() dto: UpdateRestaurantDto): Promise<boolean> {
-    try {
-      const result: UpdateResult = await this.restaurantService.updateRestaurant(
-        dto,
-      );
-      return result.affected > 0;
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
+    @AuthUser() authUser: User,
+    @Args("data") data: CreateRestaurantInput
+  ): Promise<CreateRestaurantOutput> {
+    return this.restaurantService.createRestaurant(authUser, data);
   }
 }
