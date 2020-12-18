@@ -3,8 +3,9 @@ import { IsString, Length } from "class-validator";
 import { Column, Entity, ManyToOne } from "typeorm";
 import { CoreEntity } from "../../common/entities/core.entity";
 import { Category } from "./category.entity";
+import { User } from "../../users/entities/user.entity";
 
-@InputType({ isAbstract: true }) // it's for only dto
+@InputType("RestaurantInputType", { isAbstract: true }) // it's for only dto
 @ObjectType() // for build graphql schema
 @Entity() // for TypeORM (sync database)
 export class Restaurant extends CoreEntity {
@@ -24,7 +25,14 @@ export class Restaurant extends CoreEntity {
   @IsString()
   address: string;
 
-  @Field(() => Category)
-  @ManyToOne(() => Category, (category) => category.restaurants)
+  @Field(() => Category, { nullable: true })
+  @ManyToOne(() => Category, (category) => category.restaurants, {
+    nullable: true,
+    onDelete: "SET NULL",
+  })
   category: Category;
+
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.restaurants)
+  owner: User;
 }
