@@ -6,7 +6,7 @@ import {
   registerEnumType,
 } from "@nestjs/graphql";
 import * as bcrypt from "bcrypt";
-import { IsEmail, IsEnum } from "class-validator";
+import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
 
@@ -29,6 +29,7 @@ export class User extends CoreEntity {
 
   @Field(() => String)
   @Column({ select: false })
+  @IsString()
   password: string;
 
   @Field(() => UserRole)
@@ -38,6 +39,7 @@ export class User extends CoreEntity {
 
   @Field(() => Boolean)
   @Column({ default: false })
+  @IsBoolean()
   verified: boolean;
 
   @BeforeInsert()

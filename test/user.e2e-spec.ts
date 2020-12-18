@@ -45,7 +45,7 @@ describe("UserModule (e2e)", () => {
 
   afterAll(async () => {
     await getConnection().dropDatabase();
-    app.close();
+    await app.close();
   });
 
   describe("createAccount", () => {
