@@ -16,7 +16,7 @@ export class RestaurantsResolver {
 
   @UseGuards(AuthGuard)
   @Mutation(() => CreateRestaurantOutput)
-  async createRestaurant(
+  createRestaurant(
     @AuthUser() authUser: User,
     @Args("data") data: CreateRestaurantInput
   ): Promise<CreateRestaurantOutput> {
