@@ -6,13 +6,12 @@ import {
 import { LoginInput, LoginOutput } from "./dtos/login.dto";
 import { User } from "./entities/user.entity";
 import { UsersService } from "./users.service";
-import { UseGuards } from "@nestjs/common";
-import { AuthGuard } from "../auth/auth.guard";
 import { AuthUser } from "../auth/auth-user.decorator";
 import { UserProfileInput, UserProfileOutput } from "./dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "./dtos/edit-profile.dto";
 import { CoreOutput } from "../common/dtos/output.dto";
 import { VerifyEmailInput, VerifyEmailOutput } from "./dtos/verify-email.dto";
+import { Role } from "../auth/role.decorator";
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -31,21 +30,21 @@ export class UsersResolver {
   }
 
   @Query(() => User)
-  @UseGuards(AuthGuard)
+  @Role(["Any"])
   me(@AuthUser() authUser: User): User {
     return authUser;
   }
 
-  @UseGuards(AuthGuard)
   @Query(() => UserProfileOutput)
+  @Role(["Any"])
   userProfile(
     @Args() { userId }: UserProfileInput
   ): Promise<UserProfileOutput> {
     return this.usersService.findById(userId);
   }
 
-  @UseGuards(AuthGuard)
   @Mutation(() => EditProfileOutput)
+  @Role(["Any"])
   editProfile(
     @AuthUser() authUser: User,
     @Args("data") data: EditProfileInput
@@ -53,8 +52,8 @@ export class UsersResolver {
     return this.usersService.editProfile(authUser.id, data);
   }
 
-  @UseGuards(AuthGuard)
   @Mutation(() => CoreOutput)
+  @Role(["Any"])
   deleteUser(@AuthUser() authUser: User): Promise<CoreOutput> {
     return this.usersService.deleteUser(authUser.id);
   }
