@@ -90,8 +90,8 @@ export class UsersService {
       const user = await this.users.findOne({ id });
       for (const k in data) {
         if (k === "email") {
-          // TODO: delete or update verification if verfication already exist
           user.verified = false;
+          await this.verifications.delete({ user: { id: user.id } });
           const verification = await this.verifications.save(
             this.verifications.create({ user })
           );
