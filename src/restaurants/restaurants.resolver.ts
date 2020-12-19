@@ -27,6 +27,7 @@ import {
 import { Category } from "./entities/category.entity";
 import { AllCategoriesOutput } from "./dtos/all-categories.dto";
 import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
+import { RestaurantsInput, RestaurantsOutput } from "./dtos/restaurants.dto";
 
 @Resolver(() => Restaurant)
 export class RestaurantsResolver {
@@ -57,6 +58,13 @@ export class RestaurantsResolver {
     @Args("data") data: DeleteRestaurantInput
   ): Promise<DeleteRestaurantOutput> {
     return this.restaurantService.deleteRestaurant(owner, data);
+  }
+
+  @Query(() => RestaurantsOutput)
+  restaurants(
+    @Args("data") data: RestaurantsInput
+  ): Promise<RestaurantsOutput> {
+    return this.restaurantService.allRestaurants(data);
   }
 }
 
