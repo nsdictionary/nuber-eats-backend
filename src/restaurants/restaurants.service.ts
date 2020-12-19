@@ -13,6 +13,8 @@ import {
   EditRestaurantOutput,
 } from "./dtos/edit-restaurant.dto";
 import { CategoryRepository } from "./repositories/category.repository";
+import { AllCategoriesOutput } from "./dtos/all-categories.dto";
+import { CategoryInput, CategoryOutput } from "./dtos/category.dto";
 
 @Injectable()
 export class RestaurantService {
@@ -103,6 +105,40 @@ export class RestaurantService {
       return { ok: true };
     } catch (error) {
       return { ok: false, error: "Could not delete Restaurant" };
+    }
+  }
+
+  async allCategories(): Promise<AllCategoriesOutput> {
+    try {
+      const categories = await this.categories.find();
+      // if you want involve relation add option like this
+      // { relations: ["restaurants", "restaurants.owner"],
+      //   where: {'restaurants.owner' : {email : 'test@test.com'} }
+
+      return { ok: true, categories };
+    } catch (error) {
+      return { ok: false, error: "Could not load categories" };
+    }
+  }
+
+  async countRestaurant(category: Category): Promise<number> {
+    return await this.restaurants.count({ category });
+  }
+
+  async findCategoryBySlug({ slug }: CategoryInput): Promise<CategoryOutput> {
+    try {
+      const category = await this.categories.findOne(
+        { slug },
+        { relations: ["restaurants"] }
+      );
+
+      if (!category) {
+        return { ok: false, error: "Category not found" };
+      }
+
+      return { ok: true, category };
+    } catch (error) {
+      return { ok: false, error: "Could not load category" };
     }
   }
 }
