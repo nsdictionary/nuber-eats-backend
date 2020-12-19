@@ -127,10 +127,7 @@ export class RestaurantService {
 
   async findCategoryBySlug({ slug }: CategoryInput): Promise<CategoryOutput> {
     try {
-      const category = await this.categories.findOne(
-        { slug },
-        { relations: ["restaurants"] }
-      );
+      const category = await this.categories.findCategoryBySlug(slug);
 
       if (!category) {
         return { ok: false, error: "Category not found" };

@@ -1,5 +1,6 @@
 import { EntityRepository, Repository } from "typeorm";
 import { Category } from "../entities/category.entity";
+import { CategoryInput, CategoryOutput } from "../dtos/category.dto";
 
 @EntityRepository(Category)
 export class CategoryRepository extends Repository<Category> {
@@ -12,6 +13,15 @@ export class CategoryRepository extends Repository<Category> {
         this.create({ slug: categorySlug, name: categoryName })
       );
     }
+    return category;
+  }
+
+  async findCategoryBySlug(slug: string): Promise<Category> {
+    const category: Category = await this.findOne(
+      { slug },
+      { relations: ["restaurants"] }
+    );
+
     return category;
   }
 }
