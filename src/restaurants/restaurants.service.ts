@@ -128,6 +128,7 @@ export class RestaurantService {
   async findCategoryBySlug({
     slug,
     page,
+    offset,
   }: CategoryInput): Promise<CategoryOutput> {
     try {
       const category = await this.categories.findCategoryBySlug(slug);
@@ -138,8 +139,8 @@ export class RestaurantService {
 
       const restaurants = await this.restaurants.find({
         where: { category },
-        take: 25,
-        skip: (page - 1) * 25,
+        take: offset,
+        skip: (page - 1) * offset,
       });
 
       const totalResults = await this.countRestaurant(category);
@@ -148,7 +149,7 @@ export class RestaurantService {
         ok: true,
         category,
         restaurants,
-        totalPages: Math.ceil(totalResults / 25),
+        totalPages: Math.ceil(totalResults / offset),
       };
     } catch (error) {
       return { ok: false, error: "Could not load category" };
