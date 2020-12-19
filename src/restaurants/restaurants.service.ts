@@ -45,7 +45,9 @@ export class RestaurantService {
     data: EditRestaurantInput
   ): Promise<EditRestaurantOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(data.restaurantId);
+      const restaurant: Restaurant = await this.restaurants.findOne(
+        data.restaurantId
+      );
 
       if (!restaurant) {
         return { ok: false, error: "Restaurant not found" };
@@ -74,6 +76,33 @@ export class RestaurantService {
       return { ok: true };
     } catch (error) {
       return { ok: false, error: "Could not edit Restaurant" };
+    }
+  }
+
+  async deleteRestaurant(
+    owner: User,
+    { restaurantId }: EditRestaurantInput
+  ): Promise<EditRestaurantOutput> {
+    try {
+      const restaurant: Restaurant = await this.restaurants.findOne({
+        id: restaurantId,
+      });
+
+      if (!restaurant) {
+        return { ok: false, error: "Restaurant not found" };
+      }
+
+      if (owner.id !== restaurant.ownerId) {
+        return {
+          ok: false,
+          error: "You can't delete a restaurant that you don't own",
+        };
+      }
+
+      await this.restaurants.delete({ id: restaurantId });
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: "Could not delete Restaurant" };
     }
   }
 }
