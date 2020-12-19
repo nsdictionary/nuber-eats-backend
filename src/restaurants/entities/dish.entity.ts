@@ -23,7 +23,7 @@ class DishOption {
   @Field(() => [DishChoice], { nullable: true })
   choices?: DishChoice[];
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   extra?: number;
 }
 
@@ -55,6 +55,7 @@ export class Dish extends CoreEntity {
   @Field(() => Restaurant)
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.menu, {
     onDelete: "CASCADE",
+    nullable: false,
   })
   restaurant: Restaurant;
 
