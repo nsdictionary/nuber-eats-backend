@@ -75,7 +75,7 @@ export class CategoryResolver {
   }
 
   @Query(() => CategoryOutput)
-  category(@Args() data: CategoryInput): Promise<CategoryOutput> {
+  category(@Args("data") data: CategoryInput): Promise<CategoryOutput> {
     return this.restaurantService.findCategoryBySlug(data);
   }
 }

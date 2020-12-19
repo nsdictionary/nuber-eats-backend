@@ -16,10 +16,13 @@ export class CategoryRepository extends Repository<Category> {
     return category;
   }
 
-  async findCategoryBySlug(slug: string): Promise<Category> {
+  async findCategoryBySlug(
+    slug: string,
+    relations: string[] = []
+  ): Promise<Category> {
     const category: Category = await this.findOne(
       { slug },
-      { relations: ["restaurants"] }
+      { relations: relations }
     );
 
     return category;
