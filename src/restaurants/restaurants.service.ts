@@ -31,7 +31,7 @@ import { DeleteDishInput, DeleteDishOutput } from "./dtos/delete-dish.dto";
 import { RestaurantRepository } from "./repositories/restaurant.repository";
 
 @Injectable()
-export class RestaurantService {
+export class RestaurantsService {
   // this.restaurants is Repository of restaurant entitiy
   constructor(
     @InjectRepository(Dish)

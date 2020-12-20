@@ -5,7 +5,7 @@ import {
   DishResolver,
   RestaurantsResolver,
 } from "./restaurants.resolver";
-import { RestaurantService } from "./restaurants.service";
+import { RestaurantsService } from "./restaurants.service";
 import { CategoryRepository } from "./repositories/category.repository";
 import { Dish } from "./entities/dish.entity";
 import { RestaurantRepository } from "./repositories/restaurant.repository";
@@ -18,7 +18,7 @@ import { RestaurantRepository } from "./repositories/restaurant.repository";
     RestaurantsResolver,
     CategoryResolver,
     DishResolver,
-    RestaurantService,
+    RestaurantsService,
   ],
 })
 export class RestaurantsModule {}

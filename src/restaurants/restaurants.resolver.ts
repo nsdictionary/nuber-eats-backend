@@ -8,7 +8,7 @@ import {
   Resolver,
 } from "@nestjs/graphql";
 import { Restaurant } from "./entities/restaurant.entitiy";
-import { RestaurantService } from "./restaurants.service";
+import { RestaurantsService } from "./restaurants.service";
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
@@ -43,7 +43,7 @@ import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
 
 @Resolver(() => Restaurant)
 export class RestaurantsResolver {
-  constructor(private readonly restaurantService: RestaurantService) {}
+  constructor(private readonly restaurantService: RestaurantsService) {}
 
   @Mutation(() => CreateRestaurantOutput)
   @Role(["Owner"])
@@ -94,7 +94,7 @@ export class RestaurantsResolver {
 
 @Resolver(() => Category)
 export class CategoryResolver {
-  constructor(private readonly restaurantService: RestaurantService) {}
+  constructor(private readonly restaurantService: RestaurantsService) {}
 
   @ResolveField(() => Int)
   restaurantCount(@Parent() category: Category): Promise<number> {
@@ -114,7 +114,7 @@ export class CategoryResolver {
 
 @Resolver(() => Dish)
 export class DishResolver {
-  constructor(private readonly restaurantService: RestaurantService) {}
+  constructor(private readonly restaurantService: RestaurantsService) {}
 
   @Mutation(() => CreateDishOutput)
   @Role(["Owner"])
