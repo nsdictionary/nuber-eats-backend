@@ -9,7 +9,6 @@ import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from "typeorm";
 import { CoreEntity } from "../../common/entities/core.entity";
 import { User } from "../../users/entities/user.entity";
 import { Restaurant } from "../../restaurants/entities/restaurant.entitiy";
-import { Dish } from "../../restaurants/entities/dish.entity";
 import { OrderItem } from "./order-item.entitiy";
 import { IsEnum, IsNumber } from "class-validator";
 
@@ -40,12 +39,12 @@ export class Order extends CoreEntity {
   })
   driver?: User;
 
-  @Field(() => Restaurant)
+  @Field(() => Restaurant, { nullable: true })
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders, {
     onDelete: "SET NULL",
     nullable: true,
   })
-  restaurant: Restaurant;
+  restaurant?: Restaurant;
 
   @Field(() => [OrderItem])
   @ManyToMany(() => OrderItem)
@@ -58,7 +57,7 @@ export class Order extends CoreEntity {
   total?: number;
 
   @Field(() => OrderStatus)
-  @Column({ type: "enum", enum: OrderStatus })
+  @Column({ type: "enum", enum: OrderStatus, default: OrderStatus.Pending })
   @IsEnum(OrderStatus)
   status: OrderStatus;
 }
