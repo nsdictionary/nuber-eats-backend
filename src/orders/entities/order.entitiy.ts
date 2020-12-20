@@ -14,7 +14,7 @@ import { Dish } from "../../restaurants/entities/dish.entity";
 export enum OrderStatus {
   Pending = "Pending",
   Cooking = "Cooking",
-  Pickup = "Pickup",
+  PickedUp = "PickedUp",
   Delivered = "Delivered",
 }
 
@@ -50,9 +50,9 @@ export class Order extends CoreEntity {
   @JoinTable()
   dishes: Dish[];
 
-  @Field(() => Float)
-  @Column()
-  total: number;
+  @Field(() => Float, { nullable: true })
+  @Column({ nullable: true })
+  total?: number;
 
   @Field(() => OrderStatus)
   @Column({ type: "enum", enum: OrderStatus })
