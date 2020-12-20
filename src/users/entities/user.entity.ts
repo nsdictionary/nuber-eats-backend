@@ -10,6 +10,7 @@ import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from "typeorm";
 import { Restaurant } from "../../restaurants/entities/restaurant.entitiy";
+import { Order } from "../../orders/entities/order.entitiy";
 
 export enum UserRole {
   Client = "Client",
@@ -47,6 +48,14 @@ export class User extends CoreEntity {
   @OneToMany(() => Restaurant, (restaurant) => restaurant.owner)
   restaurants: Restaurant[];
 
+  @Field(() => [Order])
+  @OneToMany(() => Order, (order) => order.customer)
+  orders: Order[];
+
+  @Field(() => [Order])
+  @OneToMany(() => Order, (order) => order.driver)
+  rides: Order[];
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
@@ -54,7 +63,6 @@ export class User extends CoreEntity {
       try {
         this.password = await bcrypt.hash(this.password, 10);
       } catch (e) {
-        console.log(e);
         throw new InternalServerErrorException();
       }
     }
