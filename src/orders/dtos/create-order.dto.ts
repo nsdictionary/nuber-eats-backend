@@ -3,7 +3,7 @@ import { CoreOutput } from "../../common/dtos/output.dto";
 import { OrderItemOption } from "../entities/order-item.entitiy";
 
 @InputType()
-class CreateOrderItemInput {
+export class CreateOrderItemInput {
   @Field(() => Int)
   dishId: number;
 
@@ -17,7 +17,7 @@ export class CreateOrderInput {
   restaurantId: number;
 
   @Field(() => [CreateOrderItemInput])
-  items: CreateOrderInput[];
+  items: CreateOrderItemInput[];
 }
 
 @ObjectType()
