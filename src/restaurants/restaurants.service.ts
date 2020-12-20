@@ -256,8 +256,6 @@ export class RestaurantService {
     }
   }
 
-  async checkDishOwner(ownerId: number, dishId: number) {}
-
   async editDish(owner: User, data: EditDishInput): Promise<EditDishOutput> {
     try {
       const dish: Dish = await this.dishes.findOne(data.dishId, {
@@ -288,10 +286,10 @@ export class RestaurantService {
 
   async deleteDish(
     owner: User,
-    data: DeleteDishInput
+    { dishId }: DeleteDishInput
   ): Promise<DeleteDishOutput> {
     try {
-      const dish: Dish = await this.dishes.findOne(data.dishId, {
+      const dish: Dish = await this.dishes.findOne(dishId, {
         relations: ["restaurant"],
       });
 
@@ -303,7 +301,7 @@ export class RestaurantService {
         return { ok: false, error: "You can't do that." };
       }
 
-      await this.dishes.delete(data.dishId);
+      await this.dishes.delete(dishId);
 
       return { ok: true };
     } catch (error) {
