@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "../users/entities/user.entity";
-import { Like, Raw, Repository } from "typeorm";
+import { Raw, Repository } from "typeorm";
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
@@ -24,7 +24,6 @@ import {
   SearchRestaurantInput,
   SearchRestaurantOutput,
 } from "./dtos/search-restaurant.dto";
-import { promises } from "dns";
 import { CreateDishInput, CreateDishOutput } from "./dtos/create-dish.dto";
 import { Dish } from "./entities/dish.entity";
 import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
@@ -256,18 +255,30 @@ export class RestaurantService {
     }
   }
 
+  private async checkDishOwner(
+    ownerId: number,
+    dishId: number
+  ): Promise<{ ok: boolean; error?: string }> {
+    const dish: Dish = await this.dishes.findOne(dishId, {
+      relations: ["restaurant"],
+    });
+
+    if (!dish) {
+      return { ok: false, error: "Dish not found" };
+    }
+
+    if (ownerId !== dish.restaurant.ownerId) {
+      return { ok: false, error: "You can't do that." };
+    }
+
+    return { ok: true };
+  }
+
   async editDish(owner: User, data: EditDishInput): Promise<EditDishOutput> {
     try {
-      const dish: Dish = await this.dishes.findOne(data.dishId, {
-        relations: ["restaurant"],
-      });
-
-      if (!dish) {
-        return { ok: false, error: "Dish not found" };
-      }
-
-      if (owner.id !== dish.restaurant.ownerId) {
-        return { ok: false, error: "You can't do that." };
+      const chkDishResult = await this.checkDishOwner(owner.id, data.dishId);
+      if (!chkDishResult.ok) {
+        return chkDishResult;
       }
 
       await this.dishes.save([
@@ -289,16 +300,9 @@ export class RestaurantService {
     { dishId }: DeleteDishInput
   ): Promise<DeleteDishOutput> {
     try {
-      const dish: Dish = await this.dishes.findOne(dishId, {
-        relations: ["restaurant"],
-      });
-
-      if (!dish) {
-        return { ok: false, error: "Dish not found" };
-      }
-
-      if (owner.id !== dish.restaurant.ownerId) {
-        return { ok: false, error: "You can't do that." };
+      const chkDishResult = await this.checkDishOwner(owner.id, dishId);
+      if (!chkDishResult.ok) {
+        return chkDishResult;
       }
 
       await this.dishes.delete(dishId);
