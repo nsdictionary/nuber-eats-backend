@@ -28,15 +28,15 @@ import { CreateDishInput, CreateDishOutput } from "./dtos/create-dish.dto";
 import { Dish } from "./entities/dish.entity";
 import { EditDishInput, EditDishOutput } from "./dtos/edit-dish.dto";
 import { DeleteDishInput, DeleteDishOutput } from "./dtos/delete-dish.dto";
+import { RestaurantRepository } from "./repositories/restaurant.repository";
 
 @Injectable()
 export class RestaurantService {
   // this.restaurants is Repository of restaurant entitiy
   constructor(
-    @InjectRepository(Restaurant)
-    private readonly restaurants: Repository<Restaurant>,
     @InjectRepository(Dish)
     private readonly dishes: Repository<Dish>,
+    private readonly restaurants: RestaurantRepository,
     private readonly categories: CategoryRepository
   ) {}
 
@@ -135,7 +135,7 @@ export class RestaurantService {
     }
   }
 
-  async countRestaurant(category: Category): Promise<number> {
+  async countRestaurants(category: Category): Promise<number> {
     return await this.restaurants.count({ category });
   }
 
@@ -151,19 +151,18 @@ export class RestaurantService {
         return { ok: false, error: "Category not found" };
       }
 
-      const restaurants = await this.restaurants.find({
+      const {
+        restaurants,
+        totalPages,
+      } = await this.restaurants.findAndPaginate(page, offset, {
         where: { category },
-        take: offset,
-        skip: (page - 1) * offset,
       });
-
-      const totalResults = await this.countRestaurant(category);
 
       return {
         ok: true,
         category,
         restaurants,
-        totalPages: Math.ceil(totalResults / offset),
+        totalPages,
       };
     } catch (error) {
       return { ok: false, error: "Could not load category" };
@@ -175,15 +174,16 @@ export class RestaurantService {
     offset,
   }: AllRestaurantsInput): Promise<AllRestaurantsOutput> {
     try {
-      const [restaurants, totalResults] = await this.restaurants.findAndCount({
-        skip: (page - 1) * offset,
-        take: offset,
-      });
+      const {
+        restaurants,
+        totalPages,
+        totalResults,
+      } = await this.restaurants.findAndPaginate(page, offset);
 
       return {
         ok: true,
         results: restaurants,
-        totalPages: Math.ceil(totalResults / offset),
+        totalPages,
         totalResults,
       };
     } catch (error) {
@@ -213,18 +213,20 @@ export class RestaurantService {
     offset,
   }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
     try {
-      const [restaurants, totalResults] = await this.restaurants.findAndCount({
+      const {
+        restaurants,
+        totalPages,
+        totalResults,
+      } = await this.restaurants.findAndPaginate(page, offset, {
         where: {
           name: Raw((name) => `${name} ILike '%${query}%'`),
         },
-        skip: (page - 1) * offset,
-        take: offset,
       });
 
       return {
         ok: true,
         results: restaurants,
-        totalPages: Math.ceil(totalResults / offset),
+        totalPages,
         totalResults,
       };
     } catch (error) {
