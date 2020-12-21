@@ -13,6 +13,7 @@ import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
 import { OrderRepository } from "./repositories/order.repository";
 import {
   NEW_COOKED_ORDER,
+  NEW_ORDER_UPDATE,
   NEW_PENDING_ORDER,
   PUB_SUB,
 } from "../common/common.constants";
@@ -178,10 +179,10 @@ export class OrdersService {
           });
         }
       }
+      await this.pubSub.publish(NEW_ORDER_UPDATE, { orderUpdates: newOrder });
 
       return { ok: true };
-    } catch (error) {
-      console.log(error);
+    } catch {
       return { ok: false, error: "Could not edit order." };
     }
   }

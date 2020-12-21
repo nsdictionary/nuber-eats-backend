@@ -7,13 +7,9 @@ import { options } from "tsconfig-paths/lib/options";
 export class OrderRepository extends Repository<Order> {
   async getOrderAndValidate(
     user: User,
-    orderId: number,
-    options?: FindOneOptions<Order>
+    orderId: number
   ): Promise<{ ok: boolean; error?: string; order?: Order }> {
-    const order: Order = await this.findOne(orderId, {
-      relations: ["restaurant"],
-      ...options,
-    });
+    const order: Order = await this.findOne(orderId);
 
     if (!order) {
       return { ok: false, error: "Order not found." };
