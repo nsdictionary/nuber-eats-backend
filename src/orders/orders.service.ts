@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { Order } from "./entities/order.entitiy";
+import { Order, OrderStatus } from "./entities/order.entitiy";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/create-order.dto";
@@ -11,7 +11,11 @@ import { AllOrdersInput, AllOrdersOutput } from "./dtos/all-orders.dto";
 import { GetOrderInput, GetOrderOutput } from "./dtos/get-order.dto";
 import { EditOrderInput, EditOrderOutput } from "./dtos/edit-order.dto";
 import { OrderRepository } from "./repositories/order.repository";
-import { NEW_PENDING_ORDER, PUB_SUB } from "../common/common.constants";
+import {
+  NEW_COOKED_ORDER,
+  NEW_PENDING_ORDER,
+  PUB_SUB,
+} from "../common/common.constants";
 import { PubSub } from "graphql-subscriptions";
 
 @Injectable()
@@ -152,7 +156,7 @@ export class OrdersService {
     { id: orderId, status }: EditOrderInput
   ): Promise<EditOrderOutput> {
     try {
-      const { ok, error } = await this.orders.getOrderAndValidate(
+      const { ok, error, order } = await this.orders.getOrderAndValidate(
         user,
         orderId
       );
@@ -165,9 +169,19 @@ export class OrdersService {
       }
 
       await this.orders.save([{ id: orderId, status }]);
+      const newOrder: Order = { ...order, status };
+
+      if (user.role === UserRole.Owner) {
+        if (status === OrderStatus.Cooked) {
+          await this.pubSub.publish(NEW_COOKED_ORDER, {
+            cookedOrders: newOrder,
+          });
+        }
+      }
 
       return { ok: true };
-    } catch {
+    } catch (error) {
+      console.log(error);
       return { ok: false, error: "Could not edit order." };
     }
   }

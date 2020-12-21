@@ -1,15 +1,18 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, FindOneOptions, Repository } from "typeorm";
 import { Order, OrderStatus } from "../entities/order.entitiy";
 import { User, UserRole } from "../../users/entities/user.entity";
+import { options } from "tsconfig-paths/lib/options";
 
 @EntityRepository(Order)
 export class OrderRepository extends Repository<Order> {
   async getOrderAndValidate(
-    user,
-    orderId
+    user: User,
+    orderId: number,
+    options?: FindOneOptions<Order>
   ): Promise<{ ok: boolean; error?: string; order?: Order }> {
     const order: Order = await this.findOne(orderId, {
       relations: ["restaurant"],
+      ...options,
     });
 
     if (!order) {
