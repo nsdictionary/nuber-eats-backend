@@ -1,7 +1,6 @@
 import { EntityRepository, FindOneOptions, Repository } from "typeorm";
 import { Order, OrderStatus } from "../entities/order.entitiy";
 import { User, UserRole } from "../../users/entities/user.entity";
-import { options } from "tsconfig-paths/lib/options";
 
 @EntityRepository(Order)
 export class OrderRepository extends Repository<Order> {

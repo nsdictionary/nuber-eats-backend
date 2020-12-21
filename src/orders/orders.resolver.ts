@@ -17,6 +17,7 @@ import {
 } from "../common/common.constants";
 import { Inject } from "@nestjs/common";
 import { OrderUpdatesInput } from "./dtos/order-updates.dto";
+import { TakeOrderInput, TakeOrderOutput } from "./dtos/take-order.dto";
 
 @Resolver(() => Order)
 export class OrdersResolver {
@@ -97,5 +98,14 @@ export class OrdersResolver {
   @Role(["Any"])
   orderUpdates(@Args("data") data: OrderUpdatesInput) {
     return this.pubSub.asyncIterator(NEW_ORDER_UPDATE);
+  }
+
+  @Mutation(() => TakeOrderOutput)
+  @Role(["Delivery"])
+  takeOrder(
+    @AuthUser() driver: User,
+    @Args("data") data: TakeOrderInput
+  ): Promise<TakeOrderOutput> {
+    return this.ordersService.takeOrder(driver, data);
   }
 }
