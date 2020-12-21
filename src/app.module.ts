@@ -16,6 +16,7 @@ import { Dish } from "./restaurants/entities/dish.entity";
 import { OrdersModule } from "./orders/orders.module";
 import { Order } from "./orders/entities/order.entitiy";
 import { OrderItem } from "./orders/entities/order-item.entitiy";
+import { CommonModule } from "./common/common.module";
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { OrderItem } from "./orders/entities/order-item.entitiy";
     UsersModule,
     RestaurantsModule,
     OrdersModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],
