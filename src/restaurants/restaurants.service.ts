@@ -61,19 +61,14 @@ export class RestaurantsService {
     data: EditRestaurantInput
   ): Promise<EditRestaurantOutput> {
     try {
-      const restaurant: Restaurant = await this.restaurants.findOne(
-        data.restaurantId
-      );
+      const {
+        ok,
+        error,
+        restaurant,
+      } = await this.restaurants.findAndValidateOwner(owner, data.restaurantId);
 
-      if (!restaurant) {
-        return { ok: false, error: "Restaurant not found" };
-      }
-
-      if (owner.id !== restaurant.ownerId) {
-        return {
-          ok: false,
-          error: "You can't edit a restaurant that you don't own",
-        };
+      if (!ok) {
+        return { ok, error };
       }
 
       let category: Category = null;
@@ -100,19 +95,14 @@ export class RestaurantsService {
     { restaurantId }: EditRestaurantInput
   ): Promise<EditRestaurantOutput> {
     try {
-      const restaurant: Restaurant = await this.restaurants.findOne({
-        id: restaurantId,
-      });
+      const {
+        ok,
+        error,
+        restaurant,
+      } = await this.restaurants.findAndValidateOwner(owner, restaurantId);
 
-      if (!restaurant) {
-        return { ok: false, error: "Restaurant not found" };
-      }
-
-      if (owner.id !== restaurant.ownerId) {
-        return {
-          ok: false,
-          error: "You can't delete a restaurant that you don't own",
-        };
+      if (!ok) {
+        return { ok, error };
       }
 
       await this.restaurants.delete({ id: restaurantId });
@@ -239,14 +229,14 @@ export class RestaurantsService {
     data: CreateDishInput
   ): Promise<CreateDishOutput> {
     try {
-      const restaurant = await this.restaurants.findOne(data.restaurantId);
+      const {
+        ok,
+        error,
+        restaurant,
+      } = await this.restaurants.findAndValidateOwner(owner, data.restaurantId);
 
-      if (!restaurant) {
-        return { ok: false, error: "Restaurant not found" };
-      }
-
-      if (owner.id !== restaurant.ownerId) {
-        return { ok: false, error: "You can't do that." };
+      if (!ok) {
+        return { ok, error };
       }
 
       await this.dishes.save(this.dishes.create({ ...data, restaurant }));
