@@ -20,7 +20,7 @@ export class UploadsController {
   )
   async uploadFile(@UploadedFile() file) {
     try {
-      return { url: file.filename };
+      return { url: `http://localhost:4000/${file.filename}` };
     } catch (e) {
       return null;
     }
