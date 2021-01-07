@@ -6,11 +6,12 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import * as AWS from "aws-sdk";
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME;
+import { ConfigService } from "@nestjs/config";
 
 @Controller("uploads")
 export class UploadsController {
+  constructor(private readonly configService: ConfigService) {}
+
   @Post("")
   @UseInterceptors(
     FileInterceptor("file", {
@@ -29,10 +30,12 @@ export class UploadsController {
   @Post("/s3")
   @UseInterceptors(FileInterceptor("file"))
   async uploadFileS3(@UploadedFile() file) {
+    const BUCKET_NAME = this.configService.get("AWS_S3_BUCKET_NAME");
+
     AWS.config.update({
       credentials: {
-        accessKeyId: process.env.AWS_S3_ACCESS_ID,
-        secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+        accessKeyId: this.configService.get("AWS_S3_ACCESS_KEY"),
+        secretAccessKey: this.configService.get("AWS_S3_SECRET_KEY"),
       },
     });
     try {
