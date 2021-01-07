@@ -20,9 +20,15 @@ import { CommonModule } from "./common/common.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { Payment } from "./payment/entities/payment.entity";
 import { ScheduleModule } from "@nestjs/schedule";
+import { UploadsModule } from "./uploads/uploads.module";
+import { join } from "path";
+import { ServeStaticModule } from "@nestjs/serve-static";
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..", "uploads"),
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test",
@@ -38,6 +44,9 @@ import { ScheduleModule } from "@nestjs/schedule";
         MAILGUN_API_KEY: Joi.string().required(),
         MAILGUN_DOMAIN_NAME: Joi.string().required(),
         MAILGUN_FROM_EMAIL: Joi.string().required(),
+        AWS_S3_BUCKET_NAME: Joi.string().required(),
+        AWS_S3_ACCESS_ID: Joi.string().required(),
+        AWS_S3_SECRET_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -86,6 +95,7 @@ import { ScheduleModule } from "@nestjs/schedule";
     OrdersModule,
     CommonModule,
     PaymentsModule,
+    UploadsModule,
   ],
   controllers: [],
   providers: [],
